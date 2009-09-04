@@ -95,9 +95,9 @@ function Splaunchy:Close()
 end
 
 function Splaunchy:Set(index)
-	local type, action, tex
+	local attributes, tex
 	if(index) then
-		type, attributes, tex = index.type, index.attributes or {}, index.texture
+		attributes, tex = index.attributes, index.texture
 
 		if(index.func) then
 			SplaunchyFunction = index.func
@@ -105,9 +105,9 @@ function Splaunchy:Set(index)
 	end
 
 	self.Index = index
-	button:SetAttribute("type", type)
-	icon:SetTexture(tex or (type and defaultIconFound) or defaultIcon)
+	icon:SetTexture(tex or (attributes and defaultIconFound) or defaultIcon)
 	label:SetText(index and index.name)
+
 	if(self.prevAttributes) then
 		for name in pairs(prevAttributes) do
 			button:SetAttribute(name, nil)
@@ -136,9 +136,9 @@ end
 
 function Splaunchy:RegisterFunction(name, func)
 	local index = {
-		type = "macro",
 		func = func,
 		attributes = {
+			type = "macro",
 			macrotext = "/script SplaunchyFunction()"
 		}
 	}

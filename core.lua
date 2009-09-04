@@ -1,5 +1,5 @@
 BINDING_HEADER_SPLAUNCHY = "Splaunchy"
-BINDING_NAME_SPLAUNCHY = "Open Splaunchy"
+BINDING_NAME_SPLAUNCHY = "Toggle Splaunchy"
 
 local defaultIcon = [[Interface\Icons\INV_Misc_QuestionMark]]
 local defaultIconFound = [[Interface\Icons\Ability_Druid_Eclipse]]
@@ -60,7 +60,23 @@ editBox:SetScript("OnEnterPressed", function(self)
 	end
 end)
 editBox:SetScript("OnEscapePressed", function() Splaunchy:Close() end)
-editBox:SetScript("OnTextChanged", function() Splaunchy:Check() end)
+editBox:SetScript("OnTextChanged", function()
+	local search = editBox:GetText()
+	if(search == ENTER_TO_START) then return end
+	if(search == "") then return Splaunchy:Set(nil) end
+
+	search = search:lower()
+	local firstLetter = search:sub(1,2)
+	local matched = indizes[firstLetter]
+	if(matched) then
+		for _, index in pairs(matched) do
+			if(index.match:match(search)) then
+				return Splaunchy.Index ~= index and Splaunchy:Set(index)
+			end
+		end
+	end
+	Splaunchy:Set(nil)
+end)
 
 function Splaunchy:Open()
 	editBox:SetText("")
@@ -76,22 +92,6 @@ function Splaunchy:Close()
 	Splaunchy:Hide()
 	editBox:ClearFocus()
 	ClearOverrideBindings(Splaunchy)
-end
-
-function Splaunchy:Check()
-	local search = editBox:GetText()
-	if(search == ENTER_TO_START) then return end
-
-	search = search:lower()
-	if(not search or search == "") then
-		return Splaunchy:Set(nil)
-	end
-	for _, index in pairs(indizes) do
-		if(index.name:lower():match(search)) then
-			return Splaunchy.Index ~= index and Splaunchy:Set(index)
-		end
-	end
-	Splaunchy:Set(nil)
 end
 
 function Splaunchy:Set(index)
@@ -127,11 +127,17 @@ indizes[#indizes+1] = {
 
 
 function Splaunchy:RegisterIndex(name, index)
-	indizes[name] = index
+	local firstLetter = name:sub(1, 2)
+	if(not indizes[firstLetter]) then indizes[firstLetter] = {} end
+	indizes[firstLetter][name] = index
 	if(not index.name) then index.name = name end
+	if(not index.match) then index.match = index.name:lower() end
 	return index
 end
-function Splaunchy:GetIndex(name) return indizes[name] end
+function Splaunchy:GetIndex(name)
+	local firstLetter = name:sub(1, 2)
+	return indizes[firstLetter] and indizes[firstLetter][name]
+end
 
 function Splaunchy:RegisterFunction(name, func)
 	local index = {

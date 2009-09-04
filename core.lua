@@ -6,6 +6,9 @@ local defaultIconFound = [[Interface\Icons\Ability_Druid_Eclipse]]
 
 local LAUNCH_TEXT = "|cff00ff00Enter to launch!|r"
 
+local indizes = {}
+local prevAttributes, selectedIndex
+
 local Splaunchy = CreateFrame("Frame", "Splaunchy", UIParent)
 Splaunchy:SetWidth(430)
 Splaunchy:SetHeight(50)
@@ -20,8 +23,6 @@ Splaunchy:SetBackdropColor(0, 0.1, 0.3, 1)
 Splaunchy:SetBackdropBorderColor(0.5, 0.7, 1, 1)
 Splaunchy:Hide()
 
-local indizes = {}
-
 local button = CreateFrame("Button", "SplaunchyButton", Splaunchy, "SecureActionButtonTemplate")
 button:SetPoint("CENTER")
 button:SetWidth(60)
@@ -29,20 +30,19 @@ button:SetHeight(60)
 button:SetAttribute("type", "action")
 button:SetAttribute("action", "1")
 button:SetScript("PostClick", function()
-	Splaunchy:Close()
+	Splaunchy:Hide()
 end)
 
 local icon = button:CreateTexture(nil, "OVERLAY")
 icon:SetAllPoints()
 local shine = CreateFrame("Frame", "SplaunchyButtonShine", button, "AnimatedShineTemplate")
 shine:SetPoint("CENTER")
-shine:SetScale(0.8)
+shine:SetScale(1.6)
 
 local label = button:CreateFontString(nil, "OVERLAY")
 label:SetFont("Fonts\\FRIZQT__.TTF", 16)
 label:SetTextColor(0, 1, 0)
 label:SetPoint("LEFT", button, "RIGHT", 10, 0)
-label:SetPoint("RIGHT", Splaunchy, "LEFT", -10, 0)
 label:SetJustifyH("LEFT")
 
 local editBox = CreateFrame("EditBox", nil, Splaunchy)
@@ -50,51 +50,18 @@ editBox:SetPoint("TOPLEFT", 10, 0)
 editBox:SetPoint("RIGHT", button, "LEFT", -10, 0)
 editBox:SetFont("Fonts\\FRIZQT__.TTF", 20)
 editBox:SetAutoFocus(nil)
+editBox:SetAltArrowKeyMode(true)
 editBox:SetScript("OnEnterPressed", function(self)
 	self:ClearFocus()
-	if(not Splaunchy.Index) then
-		Splaunchy:Close()
+	if(not selectedIndex) then
+		Splaunchy:Hide()
 	else
 		AnimatedShine_Start(button, 0, 1, 0)
 		editBox:SetText(LAUNCH_TEXT)
 	end
 end)
-editBox:SetScript("OnEscapePressed", function() Splaunchy:Close() end)
-editBox:SetScript("OnTextChanged", function()
-	local search = editBox:GetText()
-	if(search == LAUNCH_TEXT) then return end
-	if(search == "") then return Splaunchy:Set(nil) end
 
-	search = search:lower()
-	local firstLetter = search:sub(1,2)
-	local matched = indizes[firstLetter]
-	if(matched) then
-		for _, index in pairs(matched) do
-			if(index.match:match(search)) then
-				return Splaunchy.Index ~= index and Splaunchy:Set(index)
-			end
-		end
-	end
-	Splaunchy:Set(nil)
-end)
-
-function Splaunchy:Open()
-	editBox:SetText("")
-	self:Show()
-	editBox:SetFocus()
-	SetOverrideBindingClick(Splaunchy, true, "ENTER", "SplaunchyButton", "LeftButton")
-	SetOverrideBindingClick(Splaunchy, true, GetBindingKey("SPLAUNCHY"), "SplaunchyButton", "LeftButton")
-	SetOverrideBinding(Splaunchy, true, "ESCAPE", "SPLAUNCHY")
-end
-
-function Splaunchy:Close()
-	AnimatedShine_Stop(button)
-	self:Hide()
-	editBox:ClearFocus()
-	ClearOverrideBindings(Splaunchy)
-end
-
-function Splaunchy:Set(index)
+local function setIndex(index)
 	local attributes, tex
 	if(index) then
 		attributes, tex = index.attributes, index.texture
@@ -104,11 +71,11 @@ function Splaunchy:Set(index)
 		end
 	end
 
-	self.Index = index
+	selectedIndex = index
 	icon:SetTexture(tex or (attributes and defaultIconFound) or defaultIcon)
 	label:SetText(index and index.name)
 
-	if(self.prevAttributes) then
+	if(prevAttributes) then
 		for name in pairs(prevAttributes) do
 			button:SetAttribute(name, nil)
 		end
@@ -118,11 +85,48 @@ function Splaunchy:Set(index)
 			button:SetAttribute(name, value)
 		end
 	end
-	self.prevAttributes = attributes
+	prevAttributes = attributes
 end
 
+editBox:SetScript("OnEscapePressed", function() Splaunchy:Hide() end)
+editBox:SetScript("OnTextChanged", function()
+	local search = editBox:GetText()
+	if(search == LAUNCH_TEXT) then return end
+	if(search == "") then return setIndex(nil) end
+
+	search = search:lower()
+	local firstLetter = search:sub(1,2)
+	local matched = indizes[firstLetter]
+	if(matched) then
+		for _, index in pairs(matched) do
+			if(index.match:match(search)) then
+				return selectedIndex ~= index and setIndex(index)
+			end
+		end
+	end
+	setIndex(nil)
+end)
+
+Splaunchy:SetScript("OnShow", function(self)
+	editBox:SetText("")
+	editBox:SetFocus()
+	SetOverrideBindingClick(self, true, "ENTER", "SplaunchyButton", "LeftButton")
+	SetOverrideBindingClick(self, true, "RIGHT", "SplaunchyButton", "LeftButton")
+	SetOverrideBindingClick(self, true, GetBindingKey("SPLAUNCHY"), "SplaunchyButton", "LeftButton")
+
+	SetOverrideBinding(self, true, "ESCAPE", "SPLAUNCHY")
+	SetOverrideBinding(self, true, "BUTTON1", "SPLAUNCHY")
+	SetOverrideBinding(self, true, "BUTTON2", "SPLAUNCHY")
+end)
+
+Splaunchy:SetScript("OnHide", function(self)
+	AnimatedShine_Stop(button)
+	editBox:ClearFocus()
+	ClearOverrideBindings(self)
+end)
+
 function Splaunchy:RegisterIndex(name, index)
-	local firstLetter = name:sub(1, 2)
+	local firstLetter = name:sub(1, 2):lower()
 	if(not indizes[firstLetter]) then indizes[firstLetter] = {} end
 	indizes[firstLetter][name] = index
 	if(not index.name) then index.name = name end
@@ -130,7 +134,7 @@ function Splaunchy:RegisterIndex(name, index)
 	return index
 end
 function Splaunchy:GetIndex(name)
-	local firstLetter = name:sub(1, 2)
+	local firstLetter = name:sub(1, 2):lower()
 	return indizes[firstLetter] and indizes[firstLetter][name]
 end
 

@@ -7,3 +7,5 @@
 ## Notes: Spell launchy
 
 core.lua
+
+modules\spells.lua

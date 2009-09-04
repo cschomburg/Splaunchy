@@ -1,0 +1,9 @@
+## Interface: 30200
+## Title: Splaunchy
+## Author: Cargor
+## Version: 1.0
+## X-eMail: xconstruct@gmail.com
+## X-Website: http://www.xconstruct.net
+## Notes: Spell launchy
+
+core.lua

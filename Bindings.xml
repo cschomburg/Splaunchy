@@ -1,0 +1,9 @@
+<Bindings>
+	<Binding name="SPLAUNCHY" header="SPLAUNCHY">
+		if(Splaunchy:IsShown()) then
+			Splaunchy:Close()
+		else
+			Splaunchy:Open()
+		end
+	</Binding>
+</Bindings>

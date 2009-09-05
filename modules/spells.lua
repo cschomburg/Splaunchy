@@ -22,5 +22,8 @@ local function addSpellBook(type)
 		i = i + 1
 	end
 end
-
-addSpellBook(BOOKTYPE_SPELL)
+local frame = CreateFrame"Frame"
+frame:RegisterEvent("PLAYER_LOGIN")
+frame:SetScript("OnEvent", function()
+	addSpellBook(BOOKTYPE_SPELL)
+end)

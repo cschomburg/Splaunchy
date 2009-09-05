@@ -9,3 +9,6 @@
 core.lua
 
 modules\spells.lua
+modules\frames.lua
+modules\languages.lua
+modules\companions.lua

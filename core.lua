@@ -65,7 +65,6 @@ editBox:SetPoint("TOPLEFT", 10, 0)
 editBox:SetPoint("RIGHT", button, "LEFT", -10, 0)
 editBox:SetFont("Fonts\\FRIZQT__.TTF", 20)
 editBox:SetAutoFocus(nil)
-editBox:SetAltArrowKeyMode(true)
 editBox:SetScript("OnEnterPressed", function(self)
 	self:ClearFocus()
 	if(not selectedIndex) then
@@ -73,6 +72,19 @@ editBox:SetScript("OnEnterPressed", function(self)
 	else
 		AnimatedShine_Start(button, 0, 1, 0)
 		editBox:SetText(LAUNCH_TEXT)
+
+		local attributes = selectedIndex and selectedIndex.attributes
+		if(prevAttributes) then
+			for name in pairs(prevAttributes) do
+				button:SetAttribute(name, nil)
+			end
+		end
+		if(attributes) then
+			for name, value in pairs(attributes) do
+				button:SetAttribute(name, value)
+			end
+		end
+		prevAttributes = attributes
 	end
 end)
 
@@ -99,18 +111,6 @@ local function setIndex(index)
 	selectedIndex = index
 	icon:SetTexture(tex or (attributes and defaultIconFound) or defaultIcon)
 	label:SetText(index and index.name)
-
-	if(prevAttributes) then
-		for name in pairs(prevAttributes) do
-			button:SetAttribute(name, nil)
-		end
-	end
-	if(attributes) then
-		for name, value in pairs(attributes) do
-			button:SetAttribute(name, value)
-		end
-	end
-	prevAttributes = attributes
 end
 
 editBox:SetScript("OnEscapePressed", function() Splaunchy:Hide() end)
@@ -142,7 +142,6 @@ Splaunchy:SetScript("OnShow", function(self)
 	editBox:SetText("")
 	editBox:SetFocus()
 	SetOverrideBindingClick(self, true, "ENTER", "SplaunchyButton", "LeftButton")
-	SetOverrideBindingClick(self, true, "RIGHT", "SplaunchyButton", "LeftButton")
 	SetOverrideBindingClick(self, true, GetBindingKey("SPLAUNCHY"), "SplaunchyButton", "LeftButton")
 
 	SetOverrideBinding(self, true, "ESCAPE", "SPLAUNCHY")

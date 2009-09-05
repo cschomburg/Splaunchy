@@ -25,7 +25,9 @@ local frames = {
 	["Help Frame"] = function() HelpFrame_ShowFrame("Welcome") end
 }
 
-for name, func in pairs(frames) do
-	module:RegisterFunction(name, func)
+function module:Init()
+	for name, func in pairs(frames) do
+		self:RegisterFunction(name, func)
+	end
+	frames = nil
 end
-frames = nil

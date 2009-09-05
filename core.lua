@@ -164,12 +164,16 @@ function Splaunchy:RegisterModule(name)
 	local module = setmetatable({}, module_mt)
 	module.indizes = {}
 	modules[name] = module
+	module.needInit = true
 	return module
 end
 
 function Splaunchy:EnableModule(module)
 	if(type(module) == "string") then
 		module = modules[module]
+	end
+	if(module.needInit and module.Init) then
+		module:Init()
 	end
 	module.enabled = true
 	for name, index in pairs(module.indizes) do

@@ -6,7 +6,9 @@ local defaultIconFound = [[Interface\Icons\Ability_Druid_Eclipse]]
 
 local LAUNCH_TEXT = "|cff00ff00Enter to launch!|r"
 
-local indizes = {}
+local indizes, disabledIndizes = {}, {}
+local modules, Module = {}, {}
+local module_mt = {__index = Module}
 local prevAttributes, selectedIndex
 
 local Splaunchy = CreateFrame("Frame", "Splaunchy", UIParent)
@@ -94,7 +96,7 @@ editBox:SetScript("OnTextChanged", function()
 	if(search == LAUNCH_TEXT) then return end
 	if(search == "") then return setIndex(nil) end
 
-	search = search:lower()
+	search = search:lower():gsub(" ", "(.-)")
 	local firstLetter = search:sub(1,2)
 	local matched = indizes[firstLetter]
 	if(matched) then
@@ -152,4 +154,9 @@ end
 function Splaunchy:RegisterLua(name, lua)
 	local func = loadstring(lua)
 	return self:RegisterFunction(name, func)
+end
+
+function Splaunchy:RegisterModule(name)
+	local module = setmetatable({}, mt_module)
+	module.indizes = {}
 end

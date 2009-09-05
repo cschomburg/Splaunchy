@@ -1,4 +1,4 @@
-local indizes = {}
+local module = Splaunchy:RegisterModule("Inventory")
 
 local frame = CreateFrame"Frame"
 frame:RegisterEvent("BAG_UPDATE")

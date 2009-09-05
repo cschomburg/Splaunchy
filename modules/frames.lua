@@ -1,3 +1,5 @@
+local module = Splaunchy:RegisterModule("Panels")
+
 local frames = {
 	["Character Pane"] = function() ToggleCharacter("PaperDollFrame") end,
 	["Spellbook"] = function() ToggleSpellBook(BOOKTYPE_SPELL) end,
@@ -24,6 +26,6 @@ local frames = {
 }
 
 for name, func in pairs(frames) do
-	Splaunchy:RegisterFunction(name, func)
+	module:RegisterFunction(name, func)
 end
 frames = nil

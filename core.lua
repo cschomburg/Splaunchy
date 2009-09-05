@@ -1,12 +1,22 @@
+local defaultModules = {
+	["Spells"] = true,
+	["Panels"] = true,
+	["Languages"] = true,
+	["Inventory"] = true,
+	["Companions"] = true,
+}
+
 BINDING_HEADER_SPLAUNCHY = "Splaunchy"
 BINDING_NAME_SPLAUNCHY = "Toggle Splaunchy"
+
+local INDEX_NUM_FIRSTLETTERS = 1
 
 local defaultIcon = [[Interface\Icons\INV_Misc_QuestionMark]]
 local defaultIconFound = [[Interface\Icons\Ability_Druid_Eclipse]]
 
 local LAUNCH_TEXT = "|cff00ff00Enter to launch!|r"
 
-local indizes, disabledIndizes = {}, {}
+local indizes = {}
 local modules, Module = {}, {}
 local module_mt = {__index = Module}
 local prevAttributes, selectedIndex
@@ -24,6 +34,9 @@ Splaunchy:SetBackdrop{
 Splaunchy:SetBackdropColor(0, 0.1, 0.3, 1)
 Splaunchy:SetBackdropBorderColor(0.5, 0.7, 1, 1)
 Splaunchy:Hide()
+
+Splaunchy.Modules = modules
+Splaunchy.Indizes = indizes
 
 local button = CreateFrame("Button", "SplaunchyButton", Splaunchy, "SecureActionButtonTemplate")
 button:SetPoint("CENTER")
@@ -63,6 +76,16 @@ editBox:SetScript("OnEnterPressed", function(self)
 	end
 end)
 
+local function modifyIndex(name, index)
+	if(INDEX_NUM_FIRSTLETTERS > 0) then
+		local firstLetter = name:sub(1, INDEX_NUM_FIRSTLETTERS)
+		indizes[firstLetter] = indizes[firstLetter] or {}
+		indizes[firstLetter][name] = index
+	else
+		indizes[name] = index
+	end
+end
+
 local function setIndex(index)
 	local attributes, tex
 	if(index) then
@@ -97,8 +120,14 @@ editBox:SetScript("OnTextChanged", function()
 	if(search == "") then return setIndex(nil) end
 
 	search = search:lower():gsub(" ", "(.-)")
-	local firstLetter = search:sub(1,2)
-	local matched = indizes[firstLetter]
+	local matched
+	if(INDEX_NUM_FIRSTLETTERS > 0) then
+		local firstLetter = search:sub(1, INDEX_NUM_FIRSTLETTERS)
+		matched = indizes[firstLetter]
+	else
+		matched = indizes
+	end
+
 	if(matched) then
 		for _, index in pairs(matched) do
 			if(index.match:match(search)) then
@@ -127,36 +156,89 @@ Splaunchy:SetScript("OnHide", function(self)
 	ClearOverrideBindings(self)
 end)
 
-function Splaunchy:RegisterIndex(name, index)
-	local firstLetter = name:sub(1, 2):lower()
-	if(not indizes[firstLetter]) then indizes[firstLetter] = {} end
-	indizes[firstLetter][name] = index
-	if(not index.name) then index.name = name end
-	if(not index.match) then index.match = index.name:lower() end
-	return index
-end
-function Splaunchy:GetIndex(name)
-	local firstLetter = name:sub(1, 2):lower()
-	return indizes[firstLetter] and indizes[firstLetter][name]
+--[[##############################
+	Splaunchy functions
+################################]]
+
+function Splaunchy:RegisterModule(name)
+	local module = setmetatable({}, module_mt)
+	module.indizes = {}
+	modules[name] = module
+	return module
 end
 
-function Splaunchy:RegisterFunction(name, func)
+function Splaunchy:EnableModule(module)
+	if(type(module) == "string") then
+		module = modules[module]
+	end
+	module.enabled = true
+	for name, index in pairs(module.indizes) do
+		modifyIndex(index.match, index)
+	end
+end
+
+function Splaunchy:DisableModule(module)
+	if(type(module) == "string") then
+		module = modules[module]
+	end
+	module.enabled = nil
+	for name, index in pairs(module.indizes) do
+		modifyIndex(index.match, nil)
+	end
+end
+
+--[[##############################
+	Module functions
+################################]]
+
+function Module:RegisterIndex(name, index)
+	if(type(name) == "table") then
+		index = name
+		name = index.name
+	end
+
+	self.indizes[name] = index
+	if(not index.name) then index.name = name end
+	if(not index.match) then index.match = index.name:lower() end
+	index.module = self
+
+	self.indizes[name] = index
+
+	if(self.enabled) then
+		modifyIndex(index.match, index)
+	end
+	return index
+end
+
+function Module:GetIndex(name)
+	return self.indizes[name]
+end
+
+function Module:RegisterFunction(name, func)
 	local index = {
+		name = name,
 		func = func,
 		attributes = {
 			type = "macro",
 			macrotext = "/script SplaunchyFunction()"
 		}
 	}
-	return self:RegisterIndex(name, index)
+	return self:RegisterIndex(index)
 end
 
-function Splaunchy:RegisterLua(name, lua)
+function Module:RegisterLua(name, lua)
 	local func = loadstring(lua)
 	return self:RegisterFunction(name, func)
 end
 
-function Splaunchy:RegisterModule(name)
-	local module = setmetatable({}, mt_module)
-	module.indizes = {}
-end
+function Module:Enable() Splaunchy:EnableModule(self) end
+function Module:Disable() Splaunchy:DisableModule(self) end
+
+Splaunchy:RegisterEvent("PLAYER_LOGIN")
+Splaunchy:SetScript("OnEvent", function(self)
+	for k,v in pairs(defaultModules) do
+		if(v and modules[k]) then
+			self:EnableModule(k)
+		end
+	end
+end)

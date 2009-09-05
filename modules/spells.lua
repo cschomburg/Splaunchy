@@ -1,3 +1,5 @@
+local module = Splaunchy:RegisterModule("Spells")
+
 local function addSpellBook(type)
 	local i = 1
 	while true do
@@ -7,13 +9,15 @@ local function addSpellBook(type)
  
 		if(name ~= next and not IsPassiveSpell(i, type)) then
 			local texture = GetSpellTexture(i, type)
-			Splaunchy:RegisterIndex(name, {
+
+			module:RegisterIndex{
+				name = name,
 				texture = texture,
 				attributes = {
 					["type"] = "spell",
 					["spell"] = name,
 				}
-			})
+			}
 		end
 		i = i + 1
 	end

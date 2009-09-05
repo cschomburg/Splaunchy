@@ -119,7 +119,7 @@ editBox:SetScript("OnTextChanged", function()
 	if(search == LAUNCH_TEXT) then return end
 	if(search == "") then return setIndex(nil) end
 
-	search = search:lower():gsub(" ", "(.-)")
+	search = search:lower():trim():gsub(" ", "(.-)")
 	local matched
 	if(INDEX_NUM_FIRSTLETTERS > 0) then
 		local firstLetter = search:sub(1, INDEX_NUM_FIRSTLETTERS)

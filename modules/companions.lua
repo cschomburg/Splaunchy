@@ -1,12 +1,19 @@
 local module = Splaunchy:RegisterModule("Companions")
 
+local function callCompanion(index)
+	CallCompanion(index.typeID, index.id)
+end
+
 local function addCompanionType(typeID)
 	for i=1, GetNumCompanions(typeID) do
 		local _, name, _, icon = GetCompanionInfo(typeID, i)
-		module:RegisterFunction(name, function()
-				CallCompanion(typeID, i)
-			end
-		).texture = icon
+		module:RegisterIndex{
+			name = name,
+			icon = icon,
+			func = callCompanion,
+			typeID = typeID,
+			id = i,
+		}
 	end
 end
 

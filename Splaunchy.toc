@@ -1,12 +1,14 @@
 ## Interface: 30200
 ## Title: Splaunchy
 ## Author: Cargor
-## Version: 1.0
+## Version: 1.1
 ## X-eMail: xconstruct@gmail.com
 ## X-Website: http://www.xconstruct.net
 ## Notes: Spell launchy
+## SavedVariables: SplaunchyHistory
 
 core.lua
+logic.lua
 
 modules\spells.lua
 modules\frames.lua

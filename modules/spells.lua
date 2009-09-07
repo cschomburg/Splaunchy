@@ -12,7 +12,7 @@ local function addSpellBook(type)
 
 			module:RegisterIndex{
 				name = name,
-				texture = texture,
+				icon = texture,
 				attributes = {
 					["type"] = "spell",
 					["spell"] = name,

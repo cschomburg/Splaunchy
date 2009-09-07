@@ -34,7 +34,7 @@ button:SetScript("PostClick", function()
 	local name = selectedIndex.name
 	local history = Splaunchy.History
 	history[name] = (history[name] or 0) + 1
-	Splaunchy:SortIndizes()
+	Splaunchy.needsUpdate = true
 end)
 
 local icon = button:CreateTexture(nil, "OVERLAY")
@@ -114,6 +114,9 @@ editBox:SetScript("OnTextChanged", function()
 end)
 
 Splaunchy:SetScript("OnShow", function(self)
+	if(self.needsUpdate) then
+		self:SortIndizes()
+	end
 	editBox:SetText("")
 	editBox:SetFocus()
 	SetOverrideBindingClick(self, true, "ENTER", "SplaunchyButton", "LeftButton")

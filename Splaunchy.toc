@@ -7,6 +7,11 @@
 ## Notes: Spell launchy
 ## SavedVariables: SplaunchyHistory
 
+# Libs needed for broker-module
+libs\LibStub.lua
+libs\CallbackHandler-1.0.lua
+libs\LibDataBroker-1.1.lua
+
 core.lua
 logic.lua
 
@@ -14,3 +19,4 @@ modules\spells.lua
 modules\frames.lua
 modules\languages.lua
 modules\companions.lua
+modules\databroker.lua

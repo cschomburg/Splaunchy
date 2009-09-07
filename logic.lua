@@ -1,9 +1,4 @@
-local defaultModules = {
-	["Spells"] = true,
-	["Panels"] = true,
-	["Languages"] = true,
-	["Inventory"] = true,
-	["Companions"] = true,
+local disabledModules = {
 }
 
 local indizes_priority, indizes_name = {}, {}
@@ -16,7 +11,7 @@ Splaunchy.Indizes = indizes_priority
 Splaunchy.IndizesByName = indizes_name
 
 local function sortFunc(a, b)
-	return (a and historyCount[a.name] or 0) > (b and historyCount[b.name] or 0)
+	return (historyCount[a.name] or 0) > (historyCount[b.name] or 0)
 end
 
 local function addIndex(index)
@@ -35,7 +30,7 @@ local function removeIndex(index)
 	indizes_name[name] = nil
 	for k,v in pairs(indizes_priority) do
 		if(v == index) then
-			indizes_priority[k] = nil
+			tremove(indizes_priority[k])
 			return
 		end
 	end
@@ -60,6 +55,7 @@ local mt_module_index = {
 
 function Splaunchy:SortIndizes()
 	sort(indizes_priority, sortFunc)
+	self.needsUpdate = true
 end
 
 function Splaunchy:RegisterModule(name)
@@ -142,10 +138,9 @@ Splaunchy:SetScript("OnEvent", function(self)
 	historyCount = SplaunchyHistory
 	Splaunchy.History = historyCount
 
-	for k,v in pairs(defaultModules) do
-		if(v and modules[k]) then
+	for k,v in pairs(modules) do
+		if(v and not disabledModules[k]) then
 			self:EnableModule(k)
 		end
 	end
-	defaultModules = nil
 end)

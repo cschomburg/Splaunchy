@@ -9,7 +9,6 @@ end
 local function updateObject(event, name, attr, value, dataobj)
 	local index = module.Indizes[name]
 	if(index) then
-		debug(name, attr)
 		index.icon = dataobj.icon
 		index.onClick = dataobj.OnClick
 	end

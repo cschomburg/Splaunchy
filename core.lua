@@ -1,13 +1,12 @@
 BINDING_HEADER_SPLAUNCHY = "Splaunchy"
 BINDING_NAME_SPLAUNCHY = "Toggle Splaunchy"
 
-local INDEX_NUM_LETTERS = 0
-
 local defaultIcon = [[Interface\Icons\INV_Misc_QuestionMark]]
 local defaultIconFound = [[Interface\Icons\Ability_Druid_Eclipse]]
 
 local LAUNCH_TEXT = "|cff00ff00Enter to launch!|r"
-local prevAttributes, selectedIndex
+
+local prevAttributes, currIndex, currI, currSearch
 
 local Splaunchy = CreateFrame("Frame", "Splaunchy", UIParent)
 Splaunchy:SetWidth(430)
@@ -31,7 +30,7 @@ button:SetAttribute("type", "action")
 button:SetAttribute("action", "1")
 button:SetScript("PostClick", function()
 	Splaunchy:Hide()
-	local name = selectedIndex.name
+	local name = currIndex.name
 	local history = Splaunchy.History
 	history[name] = (history[name] or 0) + 1
 	Splaunchy.needsUpdate = true
@@ -55,15 +54,16 @@ editBox:SetPoint("TOPLEFT", 10, 0)
 editBox:SetPoint("RIGHT", button, "LEFT", -10, 0)
 editBox:SetFont("Fonts\\FRIZQT__.TTF", 20)
 editBox:SetAutoFocus(nil)
+editBox:SetAltArrowKeyMode(true)
 editBox:SetScript("OnEnterPressed", function(self)
 	self:ClearFocus()
-	if(not selectedIndex) then
+	if(not currIndex) then
 		Splaunchy:Hide()
 	else
 		AnimatedShine_Start(button, 0, 1, 0)
 		editBox:SetText(LAUNCH_TEXT)
 
-		local attributes = selectedIndex and selectedIndex.attributes
+		local attributes = currIndex and currIndex.attributes
 		if(prevAttributes) then
 			for name in pairs(prevAttributes) do
 				button:SetAttribute(name, nil)
@@ -78,7 +78,9 @@ editBox:SetScript("OnEnterPressed", function(self)
 	end
 end)
 
-local function setIndex(index)
+local function setIndex(index, i)
+	if(index == currIndex) then return end
+
 	local attributes, tex
 	if(index) then
 		attributes, tex = index.attributes, index.icon
@@ -89,9 +91,20 @@ local function setIndex(index)
 		end
 	end
 
-	selectedIndex = index
+	currIndex = index
+	currI = i
 	icon:SetTexture(tex or (attributes and defaultIconFound) or defaultIcon)
 	label:SetText(index and index.name)
+end
+
+local function findIndex(text, min, max, step)
+	local indizes = Splaunchy.Indizes
+	for i=(min or 1), (max or #indizes), (step or 1) do
+		local index = indizes[i]
+		if(index.match:match(text)) then
+			return index, i
+		end
+	end
 end
 
 editBox:SetScript("OnEscapePressed", function() Splaunchy:Hide() end)
@@ -100,17 +113,27 @@ editBox:SetScript("OnTextChanged", function()
 	if(search == LAUNCH_TEXT) then return end
 
 	search = search:lower():trim():gsub(" ", "(.-)")
+	currSearch = search
 	if(search == "") then return setIndex(nil) end
 
-	local indizes = Splaunchy.Indizes
+	setIndex(findIndex(search))
+end)
 
-	for i=1, #indizes do
-		local index = indizes[i]
-		if(index.match:match(search)) then
-			return selectedIndex ~= index and setIndex(index)
-		end
+local arrowFrame = CreateFrame("Button", "SplaunchyArrowButton")
+arrowFrame:SetScript("OnClick", function(self, button)
+	local min, max, step
+	if(not currI or not currSearch) then return end
+
+	if(button == "LeftButton") then
+		min = currI-1
+		max = 1
+		step = -1
+	else
+		min = currI+1
 	end
-	setIndex(nil)
+	
+	local index, i = findIndex(currSearch, min, max, step)
+	if(index) then setIndex(index, i) end
 end)
 
 Splaunchy:SetScript("OnShow", function(self)
@@ -121,6 +144,9 @@ Splaunchy:SetScript("OnShow", function(self)
 	editBox:SetFocus()
 	SetOverrideBindingClick(self, true, "ENTER", "SplaunchyButton", "LeftButton")
 	SetOverrideBindingClick(self, true, GetBindingKey("SPLAUNCHY"), "SplaunchyButton", "LeftButton")
+
+	SetOverrideBindingClick(self, true, "UP", "SplaunchyArrowButton", "LeftButton")
+	SetOverrideBindingClick(self, true, "DOWN", "SplaunchyArrowButton", "RightButton")
 
 	SetOverrideBinding(self, true, "ESCAPE", "SPLAUNCHY")
 	SetOverrideBinding(self, true, "BUTTON1", "SPLAUNCHY")

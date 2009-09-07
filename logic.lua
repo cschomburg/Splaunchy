@@ -1,5 +1,4 @@
-local disabledModules = {
-}
+local disabledModules = {}
 
 local indizes_priority, indizes_name = {}, {}
 local modules, Module = {}, {}

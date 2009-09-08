@@ -1,6 +1,8 @@
 BINDING_HEADER_SPLAUNCHY = "Splaunchy"
 BINDING_NAME_SPLAUNCHY = "Toggle Splaunchy"
 
+local NUM_RESULTS = 5
+
 local defaultIcon = [[Interface\Icons\INV_Misc_QuestionMark]]
 local defaultIconFound = [[Interface\Icons\Ability_Druid_Eclipse]]
 
@@ -8,16 +10,18 @@ local LAUNCH_TEXT = "|cff00ff00Enter to launch!|r"
 
 local prevAttributes, currIndex, currI, currSearch
 
-local Splaunchy = CreateFrame("Frame", "Splaunchy", UIParent)
-Splaunchy:SetWidth(430)
-Splaunchy:SetHeight(50)
-Splaunchy:SetPoint("CENTER")
-Splaunchy:SetBackdrop{
+local backdrop = {
 	bgFile = "Interface/Tooltips/UI-Tooltip-Background",
 	edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
 	tile = true, tileSize = 16, edgeSize = 16,
 	insets = { left = 4, right = 4, top = 4, bottom = 4 },
 }
+
+local Splaunchy = CreateFrame("Frame", "Splaunchy", UIParent)
+Splaunchy:SetWidth(430)
+Splaunchy:SetHeight(50)
+Splaunchy:SetPoint("CENTER")
+Splaunchy:SetBackdrop(backdrop)
 Splaunchy:SetBackdropColor(0, 0.1, 0.3, 1)
 Splaunchy:SetBackdropBorderColor(0.5, 0.7, 1, 1)
 Splaunchy:Hide()
@@ -56,23 +60,34 @@ editBox:SetFont("Fonts\\FRIZQT__.TTF", 20)
 editBox:SetAutoFocus(nil)
 editBox:SetAltArrowKeyMode(true)
 
-local function setIndex(index, i)
-	if(index == currIndex) then return end
+local prev
+for i=1, NUM_RESULTS do
+	local frame = CreateFrame("Frame", nil, Splaunchy)
+	frame:SetWidth(250)
+	frame:SetHeight(35)
+	frame:SetBackdrop(backdrop)
+	frame:SetBackdropColor(0, 0.1, 0.3, 1)
+	frame:SetBackdropBorderColor(0.5, 0.7, 1, 1)
+	frame:SetPoint("TOP", prev or Splaunchy, "BOTTOM", 0, 4)
 
-	local attributes, tex
-	if(index) then
-		attributes, tex = index.attributes, index.icon
+	local icon = frame:CreateTexture(nil, "OVERLAY")
+	icon:SetWidth(25)
+	icon:SetHeight(25)
+	icon:SetPoint("RIGHT", -5, 0)
+	icon:SetTexture(defaultIcon)
+	frame.Icon = icon
 
-		if(index.func) then
-			Splaunchy.SelFunction = index.func
-			Splaunchy.SelIndex = index
-		end
-	end
+	local label = frame:CreateFontString(nil, "OVERLAY")
+	label:SetFontObject(GameFontHighlight)
+	label:SetPoint("LEFT", 10, 0)
+	label:SetPoint("RIGHT", icon, "LEFT")
+	label:SetText("omgwtfbbq!")
+	label:SetJustifyH("LEFT")
+	frame.Label = label
 
-	currIndex = index
-	currI = i
-	icon:SetTexture(tex or (attributes and defaultIconFound) or defaultIcon)
-	label:SetText(index and index.name)
+	Splaunchy[i] = frame
+
+	prev = frame
 end
 
 local function findIndex(text, min, max, step)
@@ -81,6 +96,34 @@ local function findIndex(text, min, max, step)
 		local index = indizes[i]
 		if(index.match:match(text)) then
 			return index, i
+		end
+	end
+end
+
+local function setIndex(index, i)
+	if(index and index.func) then
+		Splaunchy.SelFunction = index.func
+		Splaunchy.SelIndex = index
+	end
+
+	currIndex = index
+	currI = i
+	icon:SetTexture(index and (index.icon or defaultIconFound) or defaultIcon)
+	label:SetText(index and index.name)
+
+	for row=1, NUM_RESULTS do
+		if(index) then
+			index, i = findIndex(currSearch, i+1)
+			local frame = Splaunchy[row]
+			if(index) then
+				frame:Show()
+				frame.Label:SetText(index.name)
+				frame.Icon:SetTexture(index and (index.icon or defaultIconFound) or defaultIcon)
+			else
+				frame:Hide()
+			end
+		else
+			Splaunchy[row]:Hide()
 		end
 	end
 end
@@ -125,7 +168,8 @@ editBox:SetScript("OnTextChanged", function()
 	currSearch = search
 	if(search == "") then return setIndex(nil) end
 
-	setIndex(findIndex(search))
+	local index, i = findIndex(search)
+	setIndex(index, i)
 end)
 
 CreateFrame("Button", "SplaunchyArrowButton"):SetScript("OnClick", function(self, button)

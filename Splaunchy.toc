@@ -1,7 +1,7 @@
 ## Interface: 30200
 ## Title: Splaunchy
 ## Author: Cargor
-## Version: 1.1
+## Version: 1.2
 ## X-eMail: xconstruct@gmail.com
 ## X-Website: http://www.xconstruct.net
 ## Notes: Spell launchy

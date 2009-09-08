@@ -20,3 +20,4 @@ modules\frames.lua
 modules\languages.lua
 modules\companions.lua
 modules\databroker.lua
+modules\macro.lua

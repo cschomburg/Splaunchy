@@ -140,8 +140,10 @@ Splaunchy:SetScript("OnShow", function(self)
 	if(self.needsUpdate) then
 		self:SortIndizes()
 	end
-	editBox:SetText("")
+	editBox:SetText(currSearch or "")
+	editBox:HighlightText()
 	editBox:SetFocus()
+
 	SetOverrideBindingClick(self, true, "ENTER", "SplaunchyButton", "LeftButton")
 	SetOverrideBindingClick(self, true, GetBindingKey("SPLAUNCHY"), "SplaunchyButton", "LeftButton")
 

@@ -1,5 +1,7 @@
 Version 1.1
-- often typed entries now get a higher priority
-- now matches also in the middle of the word, not only the beginning
-- new module: databroker launchers!
-- use arrow up/down to navigation through the results!
+* often typed entries now get a higher priority
+* now matches also in the middle of the word, not only the beginning
+* new module: databroker launchers!
+* use arrow up/down to navigation through the results!
+
+- fix: longer names no longer go over the frame border

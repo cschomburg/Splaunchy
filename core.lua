@@ -55,28 +55,6 @@ editBox:SetPoint("RIGHT", button, "LEFT", -10, 0)
 editBox:SetFont("Fonts\\FRIZQT__.TTF", 20)
 editBox:SetAutoFocus(nil)
 editBox:SetAltArrowKeyMode(true)
-editBox:SetScript("OnEnterPressed", function(self)
-	self:ClearFocus()
-	if(not currIndex) then
-		Splaunchy:Hide()
-	else
-		AnimatedShine_Start(button, 0, 1, 0)
-		editBox:SetText(LAUNCH_TEXT)
-
-		local attributes = currIndex and currIndex.attributes
-		if(prevAttributes) then
-			for name in pairs(prevAttributes) do
-				button:SetAttribute(name, nil)
-			end
-		end
-		if(attributes) then
-			for name, value in pairs(attributes) do
-				button:SetAttribute(name, value)
-			end
-		end
-		prevAttributes = attributes
-	end
-end)
 
 local function setIndex(index, i)
 	if(index == currIndex) then return end
@@ -107,6 +85,37 @@ local function findIndex(text, min, max, step)
 	end
 end
 
+local function lockText()
+	editBox:ClearFocus()
+	if(not currIndex) then
+		Splaunchy:Hide()
+	else
+		AnimatedShine_Start(button, 0, 1, 0)
+		editBox:SetText(LAUNCH_TEXT)
+
+		local attributes = currIndex and currIndex.attributes
+		if(prevAttributes) then
+			for name in pairs(prevAttributes) do
+				button:SetAttribute(name, nil)
+			end
+		end
+		if(attributes) then
+			for name, value in pairs(attributes) do
+				button:SetAttribute(name, value)
+			end
+		end
+		prevAttributes = attributes
+	end
+end
+
+local function reset()
+	AnimatedShine_Stop(button)
+	editBox:SetText(currSearch or "")
+	editBox:SetFocus()
+end
+
+editBox:SetScript("OnEnterPressed", lockText)
+editBox:SetScript("OnTabPressed", lockText)
 editBox:SetScript("OnEscapePressed", function() Splaunchy:Hide() end)
 editBox:SetScript("OnTextChanged", function()
 	local search = editBox:GetText()
@@ -119,8 +128,7 @@ editBox:SetScript("OnTextChanged", function()
 	setIndex(findIndex(search))
 end)
 
-local arrowFrame = CreateFrame("Button", "SplaunchyArrowButton")
-arrowFrame:SetScript("OnClick", function(self, button)
+CreateFrame("Button", "SplaunchyArrowButton"):SetScript("OnClick", function(self, button)
 	local min, max, step
 	if(not currI or not currSearch) then return end
 
@@ -136,15 +144,19 @@ arrowFrame:SetScript("OnClick", function(self, button)
 	if(index) then setIndex(index, i) end
 end)
 
+CreateFrame("Button", "SplaunchyAdditionalButton"):SetScript("OnClick", reset)
+
 Splaunchy:SetScript("OnShow", function(self)
 	if(self.needsUpdate) then
 		self:SortIndizes()
 	end
-	editBox:SetText(currSearch or "")
+
+	reset()
 	editBox:HighlightText()
-	editBox:SetFocus()
 
 	SetOverrideBindingClick(self, true, "ENTER", "SplaunchyButton", "LeftButton")
+	SetOverrideBindingClick(self, true, "TAB", "SplaunchyAdditionalButton", "LeftButton")
+
 	SetOverrideBindingClick(self, true, GetBindingKey("SPLAUNCHY"), "SplaunchyButton", "LeftButton")
 
 	SetOverrideBindingClick(self, true, "UP", "SplaunchyArrowButton", "LeftButton")
@@ -156,7 +168,6 @@ Splaunchy:SetScript("OnShow", function(self)
 end)
 
 Splaunchy:SetScript("OnHide", function(self)
-	AnimatedShine_Stop(button)
 	editBox:ClearFocus()
 	ClearOverrideBindings(self)
 end)

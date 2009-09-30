@@ -92,6 +92,7 @@ for i=1, NUM_RESULTS do
 end
 
 local function findIndex(text, min, max, step)
+	text = text:lower():trim():gsub(" ", "(.-)")
 	local indizes = Splaunchy.Indizes
 	for i=(min or 1), (max or #indizes), (step or 1) do
 		local index = indizes[i]
@@ -165,7 +166,6 @@ editBox:SetScript("OnTextChanged", function()
 	local search = editBox:GetText()
 	if(search == LAUNCH_TEXT) then return end
 
-	search = search:lower():trim():gsub(" ", "(.-)")
 	currSearch = search
 	if(search == "") then return setIndex(nil) end
 

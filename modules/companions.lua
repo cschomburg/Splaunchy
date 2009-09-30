@@ -7,13 +7,15 @@ end
 local function addCompanionType(typeID)
 	for i=1, GetNumCompanions(typeID) do
 		local _, name, _, icon = GetCompanionInfo(typeID, i)
-		local index = module.Indizes[name] or module:RegisterIndex{
-			name = name,
-			icon = icon,
-			func = callCompanion,
-			typeID = typeID,
-		}
-		index.id = i
+		if(name) then
+			local index = module.Indizes[name] or module:RegisterIndex{
+				name = name,
+				icon = icon,
+				func = callCompanion,
+				typeID = typeID,
+			}
+			index.id = i
+		end
 	end
 end
 

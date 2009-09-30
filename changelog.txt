@@ -3,6 +3,7 @@ Version 1.2
 * navigate with the tab-key between editbox and launch button
 * new module: macros!
 * last search text will now be displayed on re-opening
+* companions and spells are now updated if new ones are learned
 
 Version 1.1
 * often typed entries now get a higher priority

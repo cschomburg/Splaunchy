@@ -1,3 +1,5 @@
+local LCE = LibStub("LibCargEvents-1.0")
+
 local disabledModules = {}
 
 local indizes_priority, indizes_name = {}, {}
@@ -62,6 +64,7 @@ function Splaunchy:RegisterModule(name)
 	module.Indizes = setmetatable({module = module}, mt_module_index)
 	modules[name] = module
 	module.needInit = true
+	LCE:Embed(module)
 	return module
 end
 

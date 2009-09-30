@@ -7,8 +7,10 @@
 ## Notes: Spell launchy
 ## SavedVariablesPerCharacter: SplaunchyHistory
 
-# Libs needed for broker-module
 libs\LibStub.lua
+libs\LibCargEvents-1.0\LibCargEvents-1.0.lua
+
+# Libs needed for broker-module
 libs\CallbackHandler-1.0.lua
 libs\LibDataBroker-1.1.lua
 
@@ -21,3 +23,4 @@ modules\languages.lua
 modules\companions.lua
 modules\databroker.lua
 modules\macro.lua
+# modules\tradeskills.lua

@@ -7,7 +7,7 @@ local function addSpellBook(type)
 		local next = GetSpellName(i+1, type)
 		if(not name) then break end
  
-		if(name ~= next and not IsPassiveSpell(i, type)) then
+		if(not module.Indizes[name] and name ~= next and not IsPassiveSpell(i, type)) then
 			local texture = GetSpellTexture(i, type)
 
 			module:RegisterIndex{
@@ -23,6 +23,9 @@ local function addSpellBook(type)
 	end
 end
 
-function module:Init()
+local function update()
 	addSpellBook(BOOKTYPE_SPELL)
 end
+
+module:RegisterEvent("SPELLS_CHANGED", update)
+module:RegisterEvent("PLAYER_LOGIN", update)

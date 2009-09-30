@@ -34,6 +34,7 @@ button:SetAttribute("type", "action")
 button:SetAttribute("action", "1")
 button:SetScript("PostClick", function()
 	Splaunchy:Hide()
+	if(not currIndex) then return end
 	local name = currIndex.name
 	local history = Splaunchy.History
 	history[name] = (history[name] or 0) + 1
@@ -215,3 +216,6 @@ Splaunchy:SetScript("OnHide", function(self)
 	editBox:ClearFocus()
 	ClearOverrideBindings(self)
 end)
+
+Splaunchy:RegisterEvent("PLAYER_REGEN_DISABLED")
+Splaunchy:SetScript("OnEvent", Splaunchy.Hide)

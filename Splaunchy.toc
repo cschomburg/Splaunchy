@@ -1,4 +1,4 @@
-## Interface: 30200
+## Interface: 30300
 ## Title: Splaunchy
 ## Author: Cargor
 ## Version: 1.2
@@ -6,6 +6,8 @@
 ## X-Website: http://www.xconstruct.net
 ## Notes: Spell launchy
 ## SavedVariablesPerCharacter: SplaunchyHistory
+## LoadManagers: AddonLoader
+## X-LoadOn-Always: delayed
 
 libs\LibStub.lua
 libs\LibCargEvents-1.0\LibCargEvents-1.0.lua

@@ -1,6 +1,7 @@
 BINDING_HEADER_SPLAUNCHY = "Splaunchy"
 BINDING_NAME_SPLAUNCHY = "Toggle Splaunchy"
 
+local L = SPLAUNCHY_STRINGS
 local NUM_RESULTS = 5
 
 local defaultIcon = [[Interface\Icons\INV_Misc_QuestionMark]]
@@ -48,7 +49,7 @@ shine:SetPoint("CENTER")
 shine:SetScale(1.6)
 
 local label = button:CreateFontString(nil, "OVERLAY")
-label:SetFont("Fonts\\FRIZQT__.TTF", 16)
+label:SetFont(GameFontNormal:GetFont(), 16);
 label:SetTextColor(0, 1, 0)
 label:SetPoint("LEFT", Splaunchy, "CENTER", 40, 0)
 label:SetPoint("RIGHT", Splaunchy, "RIGHT", -10, 0)
@@ -57,7 +58,7 @@ label:SetJustifyH("LEFT")
 local editBox = CreateFrame("EditBox", nil, Splaunchy)
 editBox:SetPoint("TOPLEFT", 10, 0)
 editBox:SetPoint("RIGHT", button, "LEFT", -10, 0)
-editBox:SetFont("Fonts\\FRIZQT__.TTF", 20)
+editBox:SetFont(GameFontNormal:GetFont(), 20);
 editBox:SetAutoFocus(nil)
 editBox:SetAltArrowKeyMode(true)
 
